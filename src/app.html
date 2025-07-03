@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			// Theme initialization - runs immediately before any content loads
+			(function() {
+				const storedTheme = localStorage.getItem('theme') || 'system';
+				
+				function applyTheme(themeValue) {
+					let resolvedTheme;
+					if (themeValue === 'system') {
+						const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+						resolvedTheme = isDark ? 'dark' : 'light';
+					} else {
+						resolvedTheme = themeValue;
+					}
+					
+					document.documentElement.setAttribute('data-theme', resolvedTheme);
+					return resolvedTheme;
+				}
+				
+				// Apply the initial theme immediately
+				applyTheme(storedTheme);
+				
+				// Listen for system theme changes if using system theme
+				if (storedTheme === 'system') {
+					window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+						const currentStoredTheme = localStorage.getItem('theme');
+						if (currentStoredTheme === 'system') {
+							applyTheme('system');
+						}
+					});
+				}
+			})();
+		</script>
+		
+		<!-- Monaco Editor CDN -->
+		<script src="https://unpkg.com/monaco-editor@0.52.0/min/vs/loader.js"></script>
+		<script>
+			// Configure Monaco loader
+			if (typeof require !== 'undefined') {
+				require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.52.0/min/vs' } });
+				window.MonacoLoader = require;
+			}
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-background text-foreground">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

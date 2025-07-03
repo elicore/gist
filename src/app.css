@@ -4,48 +4,49 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    /* Light theme */
+    --color-background: 255 255 255;
+    --color-foreground: 10 10 10;
+    --color-card: 255 255 255;
+    --color-card-foreground: 10 10 10;
+    --color-popover: 255 255 255;
+    --color-popover-foreground: 10 10 10;
+    --color-primary: 24 24 27;
+    --color-primary-foreground: 248 250 252;
+    --color-secondary: 244 244 245;
+    --color-secondary-foreground: 39 39 42;
+    --color-muted: 244 244 245;
+    --color-muted-foreground: 113 113 122;
+    --color-accent: 244 244 245;
+    --color-accent-foreground: 39 39 42;
+    --color-destructive: 239 68 68;
+    --color-destructive-foreground: 248 250 252;
+    --color-border: 229 229 234;
+    --color-input: 229 229 234;
+    --color-ring: 24 24 27;
     --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+  [data-theme="dark"] {
+    --color-background: 10 10 10;
+    --color-foreground: 248 250 252;
+    --color-card: 24 24 27;
+    --color-card-foreground: 248 250 252;
+    --color-popover: 24 24 27;
+    --color-popover-foreground: 248 250 252;
+    --color-primary: 248 250 252;
+    --color-primary-foreground: 39 39 42;
+    --color-secondary: 39 39 42;
+    --color-secondary-foreground: 248 250 252;
+    --color-muted: 39 39 42;
+    --color-muted-foreground: 161 161 170;
+    --color-accent: 39 39 42;
+    --color-accent-foreground: 248 250 252;
+    --color-destructive: 239 68 68;
+    --color-destructive-foreground: 248 250 252;
+    --color-border: 39 39 42;
+    --color-input: 39 39 42;
+    --color-ring: 212 212 216;
   }
 }
 

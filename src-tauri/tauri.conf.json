@@ -2,10 +2,10 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "gist-manager",
   "version": "0.1.0",
-  "identifier": "com.gist-manager.app",
+  "identifier": "com.gistmanager.app",
   "build": {
     "devUrl": "http://localhost:1420",
-    "frontendDist": "../dist"
+    "frontendDist": "../.svelte-kit/output/client"
   },
   "app": {
     "withGlobalTauri": true,

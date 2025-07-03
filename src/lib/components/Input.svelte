@@ -23,6 +23,7 @@
   on:change
   on:focus
   on:blur
+  on:keydown
 />
 {:else}
 <input
@@ -39,5 +40,6 @@
   on:change
   on:focus
   on:blur
+  on:keydown
 />
 {/if}

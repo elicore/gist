@@ -10,7 +10,17 @@
       "Bash(npm run tauri:dev:*)",
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "Bash(cargo clean:*)",
+      "Bash(y)",
+      "Bash(curl:*)",
+      "Bash(pgrep:*)",
+      "Bash(lsof:*)",
+      "Bash(pkill:*)",
+      "Bash(grep:*)",
+      "Bash(npm run check:*)"
     ],
     "deny": []
   }
