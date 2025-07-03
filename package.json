@@ -11,7 +11,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "tauri": "tauri",
     "tauri:dev": "concurrently \"npm run dev\" \"tauri dev\" --kill-others-on-fail",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "release": "commit-and-tag-version"
   },
   "dependencies": {
     "@monaco-editor/loader": "^1.5.0",
@@ -33,6 +34,7 @@
     "@tauri-apps/cli": "^2",
     "@tsconfig/svelte": "^5.0.4",
     "autoprefixer": "^10.4.20",
+    "commit-and-tag-version": "^12.5.1",
     "concurrently": "^9.2.0",
     "postcss": "^8.4.47",
     "svelte-check": "^4.0.5",
