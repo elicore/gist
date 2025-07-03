@@ -1,9 +1,9 @@
 <script>
   import { onMount } from 'svelte';
-  import { selectedGist, selectedFile, githubToken, isLoading, theme } from '../stores.js';
+  import { selectedGist, selectedFile, githubToken, isLoading, theme, editorTheme } from '../stores.js';
   import { GitHubGistAPI } from '../github.js';
-  import { getFileIcon } from '../file-icons.js';
-  import { Plus, Save, Trash2, Edit3, Code, FileText, Eye, EyeOff, Palette } from 'lucide-svelte';
+  import FileIcon from './FileIcon.svelte';
+  import { Plus, Save, Trash2, Edit3, Code, FileText, Eye, EyeOff, Palette, Globe, Lock, Calendar } from 'lucide-svelte';
   import Button from './Button.svelte';
   import Input from './Input.svelte';
   import Card from './Card.svelte';
@@ -18,6 +18,8 @@
   let isEditing = $state(false);
   let newFileName = $state('');
   let showNewFileInput = $state(false);
+  let editingNewFile = $state(false);
+  let newFileInputRef = $state();
   let monacoReady = $state(false);
   let showMarkdownPreview = $state(false);
   let initializingMonaco = $state(false);
@@ -27,15 +29,26 @@
   
   // Available editor themes
   const editorThemes = [
-    { key: 'custom-light', name: 'Light', group: 'light' },
-    { key: 'custom-dark', name: 'Dark', group: 'dark' },
-    { key: 'vs', name: 'VS Code Light', group: 'light' },
-    { key: 'vs-dark', name: 'VS Code Dark', group: 'dark' },
-    { key: 'hc-black', name: 'High Contrast Dark', group: 'dark' },
-    { key: 'hc-light', name: 'High Contrast Light', group: 'light' }
+    { key: 'custom-light', name: 'Light' },
+    { key: 'custom-dark', name: 'Dark' },
+    { key: 'vs', name: 'VS Light' },
+    { key: 'vs-dark', name: 'VS Dark' },
+    { key: 'hc-black', name: 'HC Dark' },
+    { key: 'hc-light', name: 'HC Light' },
+    { key: 'github-light', name: 'GitHub Light' },
+    { key: 'github-dark', name: 'GitHub Dark' },
+    { key: 'monokai', name: 'Monokai' },
+    { key: 'dracula', name: 'Dracula' },
+    { key: 'solarized-dark', name: 'Solarized Dark' },
+    { key: 'solarized-light', name: 'Solarized Light' },
+    { key: 'one-dark-pro', name: 'One Dark Pro' },
+    { key: 'night-owl', name: 'Night Owl' },
+    { key: 'ayu-dark', name: 'Ayu Dark' },
+    { key: 'material-theme', name: 'Material' },
+    { key: 'cobalt2', name: 'Cobalt2' }
   ];
   
-  let currentEditorTheme = $state('auto'); // 'auto' follows app theme
+  let currentEditorTheme = $state($editorTheme); // Load from persistent store
   
   // Check if current file is markdown
   let isMarkdownFile = $derived($selectedFile && $selectedFile.filename.toLowerCase().match(/\.(md|markdown)$/));
@@ -122,6 +135,7 @@
   
   function selectEditorTheme(theme) {
     currentEditorTheme = theme;
+    editorTheme.set(theme); // Save to persistent store
     applyEditorTheme();
     showThemeMenu = false;
   }
@@ -306,9 +320,32 @@
     }
   }
 
-  function showNewFile() {
-    showNewFileInput = true;
+  function startNewFile() {
+    editingNewFile = true;
+    newFileName = 'untitled';
+    // Focus the input after it's rendered
+    setTimeout(() => {
+      if (newFileInputRef) {
+        newFileInputRef.focus();
+        newFileInputRef.select();
+      }
+    }, 0);
+  }
+
+  function cancelNewFile() {
+    editingNewFile = false;
     newFileName = '';
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   async function createNewFile() {
@@ -332,7 +369,7 @@
       // Select the new file
       selectFile(newFileName);
       
-      showNewFileInput = false;
+      editingNewFile = false;
       newFileName = '';
     } catch (error) {
       console.error('Error creating file:', error);
@@ -352,52 +389,94 @@
             <h2 class="text-lg font-semibold text-foreground">
               {$selectedGist.description || 'Untitled Gist'}
             </h2>
-            <p class="text-xs text-muted-foreground">
-              {Object.keys($selectedGist.files || {}).length} file{Object.keys($selectedGist.files || {}).length !== 1 ? 's' : ''}
-            </p>
+            
+            <!-- Gist Details -->
+            <div class="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+              <!-- Visibility Status -->
+              <div class="flex items-center gap-1.5" title={$selectedGist.public ? 'Public gist' : 'Private gist'}>
+                {#if $selectedGist.public}
+                  <Globe size={12} />
+                  <span>Public</span>
+                {:else}
+                  <Lock size={12} />
+                  <span>Private</span>
+                {/if}
+              </div>
+              
+              <!-- File Count (only if > 1) -->
+              {#if Object.keys($selectedGist.files || {}).length > 1}
+                <div class="flex items-center gap-1.5">
+                  <FileText size={12} />
+                  <span>{Object.keys($selectedGist.files || {}).length} files</span>
+                </div>
+              {/if}
+              
+              <!-- Created Date -->
+              {#if $selectedGist.created_at}
+                <div class="flex items-center gap-1.5" title="Created: {formatDate($selectedGist.created_at)}">
+                  <Calendar size={12} />
+                  <span>Created {formatDate($selectedGist.created_at)}</span>
+                </div>
+              {/if}
+              
+              <!-- Updated Date (only if different from created) -->
+              {#if $selectedGist.updated_at && $selectedGist.updated_at !== $selectedGist.created_at}
+                <div class="flex items-center gap-1.5" title="Last updated: {formatDate($selectedGist.updated_at)}">
+                  <Calendar size={12} />
+                  <span>Updated {formatDate($selectedGist.updated_at)}</span>
+                </div>
+              {/if}
+            </div>
           </div>
         </div>
-        <Button variant="outline" size="sm" onclick={showNewFile} class="transition-all duration-200 hover:scale-105">
-          <Plus size={16} />
-          New File
-        </Button>
       </div>
 
-      {#if showNewFileInput}
-        <div class="flex gap-2 mb-4">
-          <Input
-            placeholder="filename.ext"
-            bind:value={newFileName}
-            onkeydown={(e) => e.key === 'Enter' && createNewFile()}
-          />
-          <Button size="sm" onclick={createNewFile}>Add</Button>
-          <Button variant="outline" size="sm" onclick={() => showNewFileInput = false}>
-            Cancel
-          </Button>
-        </div>
-      {/if}
 
       <div class="flex flex-wrap gap-2">
         {#each Object.entries($selectedGist.files || {}) as [filename, file]}
-          {@const IconComponent = getFileIcon(filename)}
           <button
             class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md transform hover:scale-105 hover:translate-y-[-1px] active:scale-95 {$selectedFile?.filename === filename ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-secondary/80 hover:bg-secondary text-secondary-foreground'}"
             onclick={() => selectFile(filename)}
           >
-            <IconComponent size={14} />
+            <FileIcon filename={filename} size={14} />
             <span class="truncate max-w-32">{filename}</span>
           </button>
         {/each}
+        
+        <!-- New file creation -->
+        {#if editingNewFile}
+          <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-secondary/80 border-2 border-primary/50">
+            <FileText size={14} />
+            <input
+              bind:this={newFileInputRef}
+              bind:value={newFileName}
+              onkeydown={(e) => {
+                if (e.key === 'Enter') createNewFile();
+                if (e.key === 'Escape') cancelNewFile();
+              }}
+              onblur={createNewFile}
+              class="bg-transparent outline-none border-none w-24 text-sm"
+              placeholder="filename.ext"
+            />
+          </div>
+        {:else}
+          <button
+            onclick={startNewFile}
+            class="flex items-center justify-center w-10 h-10 rounded-lg text-sm font-medium bg-secondary/50 hover:bg-secondary border-2 border-dashed border-border hover:border-primary/50 transition-all duration-200 hover:scale-105"
+            title="Add new file"
+          >
+            <Plus size={16} />
+          </button>
+        {/if}
       </div>
     </div>
 
     {#if $selectedFile}
-      {@const IconComponent = getFileIcon($selectedFile.filename)}
       <div class="border-b border-border/50 p-4 bg-card/20 backdrop-blur-sm">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 bg-accent/50 rounded-md flex items-center justify-center">
-              <IconComponent size={16} />
+              <FileIcon filename={$selectedFile.filename} size={16} />
             </div>
             <div>
               <span class="font-semibold text-foreground">{$selectedFile.filename}</span>
@@ -428,39 +507,52 @@
               <button
                 bind:this={themeButtonRef}
                 onclick={toggleThemeMenu}
-                class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border border-border bg-card hover:bg-accent transition-all duration-200 hover:scale-105"
-                title="Editor theme"
+                class="flex items-center gap-1 px-2 py-1 text-xs rounded border border-border bg-card hover:bg-accent transition-colors"
+                title="Editor theme: {currentEditorTheme === 'auto' ? 'Auto' : editorThemes.find(t => t.key === currentEditorTheme)?.name || 'Theme'}"
               >
-                <Palette size={14} />
-                <span>{currentEditorTheme === 'auto' ? 'Auto' : editorThemes.find(t => t.key === currentEditorTheme)?.name || 'Theme'}</span>
+                <Palette size={12} />
+                <span class="text-[10px] font-mono">{currentEditorTheme === 'auto' ? 'AUTO' : (editorThemes.find(t => t.key === currentEditorTheme)?.name || 'THEME').toUpperCase()}</span>
               </button>
             </div>
             
             {#if isEditing}
-              <Button size="sm" onclick={saveFile} class="transition-all duration-200 hover:scale-105">
-                <Save size={16} />
-                Save
-              </Button>
-              <Button variant="outline" size="sm" onclick={cancelEditing}>
-                Cancel
-              </Button>
+              <button
+                onclick={saveFile}
+                class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border border-border bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+              >
+                <Save size={14} />
+                <span>Save</span>
+              </button>
+              <button
+                onclick={cancelEditing}
+                class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border border-border bg-card hover:bg-accent transition-all duration-200 hover:scale-105"
+              >
+                <span>Cancel</span>
+              </button>
             {:else}
-              <Button variant="outline" size="sm" onclick={startEditing} class="transition-all duration-200 hover:scale-105">
-                <Edit3 size={16} />
-                Edit
-              </Button>
+              <button
+                onclick={startEditing}
+                class="flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border border-border bg-card hover:bg-accent transition-all duration-200 hover:scale-105"
+              >
+                <Edit3 size={14} />
+                <span>Edit</span>
+              </button>
             {/if}
-            <Button variant="destructive" size="sm" onclick={deleteFile} class="transition-all duration-200 hover:scale-105">
-              <Trash2 size={16} />
-            </Button>
+            <button
+              onclick={deleteFile}
+              class="flex items-center gap-1 px-3 py-1.5 text-xs rounded-md border border-border bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-all duration-200 hover:scale-105"
+              title="Delete file"
+            >
+              <Trash2 size={14} />
+            </button>
           </div>
         </div>
       </div>
 
-      <div class="flex-1 relative bg-background/50">
+      <div class="flex-1 relative bg-background/50 overflow-hidden">
         {#if showMarkdownPreview && isMarkdownFile}
-          <div class="w-full h-full p-6 overflow-y-auto bg-card/50 backdrop-blur-sm">
-            <div class="prose prose-sm max-w-none dark:prose-invert">
+          <div class="w-full h-full overflow-y-auto scrollbar-custom bg-card/50 backdrop-blur-sm">
+            <div class="p-6 markdown-preview max-w-none">
               {@html markdownPreview}
             </div>
           </div>
@@ -522,21 +614,21 @@
 {#if showThemeMenu}
   <div class="fixed inset-0 z-[9999]" onclick={() => showThemeMenu = false}>
     <div 
-      class="absolute bg-card border border-border rounded-lg shadow-xl min-w-48 py-1"
+      class="absolute bg-card border border-border rounded shadow-lg w-32 py-1 max-h-80 overflow-y-auto"
       style="top: {themeButtonPosition?.bottom || 0}px; right: {window.innerWidth - (themeButtonPosition?.right || 0)}px;"
       onclick={(e) => e.stopPropagation()}
     >
       <button
         onclick={() => selectEditorTheme('auto')}
-        class="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === 'auto' ? 'bg-primary/10 text-primary' : ''}"
+        class="w-full px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === 'auto' ? 'bg-primary/10 text-primary' : ''}"
       >
-        Auto (Follow App Theme)
+        Auto
       </button>
-      <div class="border-t border-border my-1"></div>
+      <div class="border-t border-border/30 my-1"></div>
       {#each editorThemes as theme}
         <button
           onclick={() => selectEditorTheme(theme.key)}
-          class="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === theme.key ? 'bg-primary/10 text-primary' : ''}"
+          class="w-full px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === theme.key ? 'bg-primary/10 text-primary' : ''}"
         >
           {theme.name}
         </button>

@@ -31,4 +31,4 @@ function createPersistentStore(key, defaultValue) {
 
 export const githubToken = createPersistentStore('github-token', '');
 export const theme = createPersistentStore('gist-theme', 'system');
-export const editorTheme = createPersistentStore('gist-editor-theme', 'vs-dark');
+export const editorTheme = createPersistentStore('gist-editor-theme', 'auto');

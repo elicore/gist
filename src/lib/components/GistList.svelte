@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { GitHubGistAPI } from '../github.js';
   import { githubToken, gists, selectedGist, selectedFile, isLoading, error } from '../stores.js';
-  import { getFileIcon } from '../file-icons.js';
+  import FileIcon from './FileIcon.svelte';
   import { Star, Eye, GitFork, Calendar, FileText, Search, RefreshCw } from 'lucide-svelte';
   import Card from './Card.svelte';
   import Input from './Input.svelte';
@@ -128,15 +128,15 @@
     </div>
   {:else}
     <div class="p-4 border-b border-border/50 bg-card/30 backdrop-blur-sm">
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3 mb-4">
         <h2 class="text-lg font-semibold text-foreground">Your Gists</h2>
         <button
           onclick={loadGists}
           disabled={$isLoading}
-          class="p-2 rounded-lg border border-border bg-card hover:bg-accent transition-all duration-200 hover:scale-105 disabled:opacity-50"
+          class="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-all duration-200 disabled:opacity-50"
           title={lastUpdateTime ? `Last updated: ${lastUpdateTime.toLocaleTimeString()}` : 'Click to refresh'}
         >
-          <RefreshCw size={16} class={$isLoading ? 'animate-spin' : ''} />
+          <RefreshCw size={14} class={$isLoading ? 'animate-spin' : ''} />
         </button>
       </div>
       <div class="relative">
@@ -149,7 +149,7 @@
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+    <div class="flex-1 overflow-y-auto scrollbar-custom">
       {#if $error}
         <div class="p-6 flex items-center justify-center">
           <div class="text-center space-y-2">
@@ -209,17 +209,18 @@
                     <Calendar size={12} />
                     <span>{formatDate(gist.updated_at)}</span>
                   </div>
-                  <div class="flex items-center gap-1.5">
-                    <FileText size={12} />
-                    <span>{Object.keys(gist.files).length} file{Object.keys(gist.files).length !== 1 ? 's' : ''}</span>
-                  </div>
+                  {#if Object.keys(gist.files).length > 1}
+                    <div class="flex items-center gap-1.5">
+                      <FileText size={12} />
+                      <span>{Object.keys(gist.files).length} files</span>
+                    </div>
+                  {/if}
                 </div>
 
                 <div class="flex flex-wrap gap-1.5">
                   {#each Object.entries(gist.files).slice(0, 3) as [filename, file]}
-                    {@const IconComponent = getFileIcon(filename)}
                     <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-secondary/60 hover:bg-secondary/80 rounded-md text-xs font-medium transition-colors">
-                      <IconComponent size={12} />
+                      <FileIcon filename={filename} size={12} />
                       <span class="truncate max-w-24">{filename}</span>
                     </div>
                   {/each}
