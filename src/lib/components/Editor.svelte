@@ -1,15 +1,11 @@
 <script>
-  import { onMount } from 'svelte';
-  import { selectedGist, selectedFile, githubToken, isLoading, theme, editorTheme } from '../stores.js';
+  import { selectedGist, selectedFile, githubToken, isLoading, lightEditorTheme, darkEditorTheme } from '../stores.js';
   import { GitHubGistAPI } from '../github.js';
   import FileIcon from './FileIcon.svelte';
-  import { Plus, Save, Trash2, Edit3, Code, FileText, Eye, EyeOff, Palette, Globe, Lock, Calendar } from 'lucide-svelte';
-  import Button from './Button.svelte';
-  import Input from './Input.svelte';
-  import Card from './Card.svelte';
+  import { Plus, Save, Trash2, Edit3, Code, FileText, Eye, Palette, Globe, Lock, Calendar } from 'lucide-svelte';
   import { marked } from 'marked';
   import loader from '@monaco-editor/loader';
-  import { initMonaco, createEditor, setEditorTheme, getLanguageFromFilename } from '../monaco.js';
+  import { initMonaco, createEditor, getLanguageFromFilename } from '../monaco.js';
 
   let editorContainer = $state();
   let monaco = $state();
@@ -17,7 +13,6 @@
   let api = $state();
   let isEditing = $state(false);
   let newFileName = $state('');
-  let showNewFileInput = $state(false);
   let editingNewFile = $state(false);
   let newFileInputRef = $state();
   let monacoReady = $state(false);
@@ -27,28 +22,33 @@
   let themeButtonRef = $state();
   let themeButtonPosition = $state();
   
-  // Available editor themes
+  // Available editor themes (only include themes that are actually defined in monaco.js)
   const editorThemes = [
-    { key: 'custom-light', name: 'Light' },
-    { key: 'custom-dark', name: 'Dark' },
-    { key: 'vs', name: 'VS Light' },
-    { key: 'vs-dark', name: 'VS Dark' },
-    { key: 'hc-black', name: 'HC Dark' },
-    { key: 'hc-light', name: 'HC Light' },
+    // Light themes
     { key: 'github-light', name: 'GitHub Light' },
+    { key: 'light-plus', name: 'Light+' },
+    { key: 'atom-one-light', name: 'Atom One Light' },
+    { key: 'quiet-light', name: 'Quiet Light' },
+    { key: 'winter-light', name: 'Winter Light' },
+    { key: 'solarized-light', name: 'Solarized Light' },
+    { key: 'custom-light', name: 'Custom Light' },
+    { key: 'vs', name: 'VS Light' },
+    { key: 'hc-light', name: 'HC Light' },
+    // Dark themes
     { key: 'github-dark', name: 'GitHub Dark' },
+    { key: 'one-dark-pro', name: 'One Dark Pro' },
     { key: 'monokai', name: 'Monokai' },
     { key: 'dracula', name: 'Dracula' },
-    { key: 'solarized-dark', name: 'Solarized Dark' },
-    { key: 'solarized-light', name: 'Solarized Light' },
-    { key: 'one-dark-pro', name: 'One Dark Pro' },
     { key: 'night-owl', name: 'Night Owl' },
     { key: 'ayu-dark', name: 'Ayu Dark' },
     { key: 'material-theme', name: 'Material' },
-    { key: 'cobalt2', name: 'Cobalt2' }
+    { key: 'cobalt2', name: 'Cobalt2' },
+    { key: 'solarized-dark', name: 'Solarized Dark' },
+    { key: 'custom-dark', name: 'Custom Dark' },
+    { key: 'vs-dark', name: 'VS Dark' },
+    { key: 'hc-black', name: 'HC Dark' }
   ];
   
-  let currentEditorTheme = $state($editorTheme); // Load from persistent store
   
   // Check if current file is markdown
   let isMarkdownFile = $derived($selectedFile && $selectedFile.filename.toLowerCase().match(/\.(md|markdown)$/));
@@ -93,34 +93,58 @@
     }
   });
 
-  // Update editor theme when app theme changes
+  // State to track current theme
+  let currentTheme = $state();
+  
+  // Function to get the current editor theme based on mode
+  function getCurrentEditorTheme() {
+    if (typeof document === 'undefined') return $lightEditorTheme; // SSR safety
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return isDark ? $darkEditorTheme : $lightEditorTheme;
+  }
+  
+  // Initialize current theme and update when stores change
   $effect(() => {
-    if (editor && monacoReady) {
-      applyEditorTheme();
+    // Small delay to ensure document theme is applied
+    if (typeof document !== 'undefined') {
+      setTimeout(() => {
+        currentTheme = getCurrentEditorTheme();
+      }, 100);
     }
   });
-  
-  function applyEditorTheme() {
-    if (!editor || !monacoReady) return;
-    
-    let themeToApply;
-    
-    if (currentEditorTheme === 'auto') {
-      // Follow app theme
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      themeToApply = isDark ? 'custom-dark' : 'custom-light';
-    } else {
-      // Use specific theme
-      themeToApply = currentEditorTheme;
+
+  // Apply the appropriate theme when editor is ready or theme changes
+  $effect(() => {
+    if (editor && monacoReady && currentTheme) {
+      try {
+        monaco.editor.setTheme(currentTheme);
+      } catch (error) {
+        console.error('Failed to apply editor theme:', error);
+      }
     }
-    
-    try {
-      monaco.editor.setTheme(themeToApply);
-      console.log('Applied editor theme:', themeToApply);
-    } catch (error) {
-      console.error('Failed to apply editor theme:', error);
+  });
+
+  // Watch for theme changes in the document
+  $effect(() => {
+    if (editor && monacoReady) {
+      const observer = new MutationObserver(() => {
+        const newTheme = getCurrentEditorTheme();
+        currentTheme = newTheme;
+        try {
+          monaco.editor.setTheme(newTheme);
+        } catch (error) {
+          console.error('Failed to apply editor theme:', error);
+        }
+      });
+      
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+      
+      return () => observer.disconnect();
     }
-  }
+  });
   
   function toggleThemeMenu() {
     if (!showThemeMenu && themeButtonRef) {
@@ -134,9 +158,25 @@
   }
   
   function selectEditorTheme(theme) {
-    currentEditorTheme = theme;
-    editorTheme.set(theme); // Save to persistent store
-    applyEditorTheme();
+    // Save to the appropriate store based on current mode
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    if (isDark) {
+      darkEditorTheme.set(theme);
+    } else {
+      lightEditorTheme.set(theme);
+    }
+    
+    // Update current theme state
+    currentTheme = theme;
+    
+    // Apply the theme immediately
+    try {
+      monaco.editor.setTheme(theme);
+    } catch (error) {
+      console.error('Failed to apply editor theme:', error);
+    }
+    
     showThemeMenu = false;
   }
 
@@ -160,9 +200,9 @@
       // Ensure our custom themes are available
       await initMonaco();
       
-      // Determine theme
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const theme = isDark ? 'custom-dark' : 'custom-light';
+      // Use the appropriate theme for the current mode - wait a bit for document theme to be applied
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const theme = getCurrentEditorTheme();
       
       // Create the editor
       editor = createEditor(editorContainer, {
@@ -180,6 +220,16 @@
       });
       
       monacoReady = true;
+      
+      // Ensure we apply the correct theme immediately after initialization
+      const correctTheme = getCurrentEditorTheme();
+      currentTheme = correctTheme;
+      try {
+        monaco.editor.setTheme(correctTheme);
+      } catch (error) {
+        console.error('Failed to apply initial theme:', error);
+      }
+      
       console.log('Monaco Editor initialized successfully');
       
     } catch (error) {
@@ -508,10 +558,10 @@
                 bind:this={themeButtonRef}
                 onclick={toggleThemeMenu}
                 class="flex items-center gap-1 px-2 py-1 text-xs rounded border border-border bg-card hover:bg-accent transition-colors"
-                title="Editor theme: {currentEditorTheme === 'auto' ? 'Auto' : editorThemes.find(t => t.key === currentEditorTheme)?.name || 'Theme'}"
+                title="Editor theme: {currentTheme && editorThemes.find(t => t.key === currentTheme)?.name || 'Theme'}"
               >
                 <Palette size={12} />
-                <span class="text-[10px] font-mono">{currentEditorTheme === 'auto' ? 'AUTO' : (editorThemes.find(t => t.key === currentEditorTheme)?.name || 'THEME').toUpperCase()}</span>
+                <span class="text-[10px] font-mono">{(currentTheme && editorThemes.find(t => t.key === currentTheme)?.name || 'THEME').toUpperCase()}</span>
               </button>
             </div>
             
@@ -618,17 +668,10 @@
       style="top: {themeButtonPosition?.bottom || 0}px; right: {window.innerWidth - (themeButtonPosition?.right || 0)}px;"
       onclick={(e) => e.stopPropagation()}
     >
-      <button
-        onclick={() => selectEditorTheme('auto')}
-        class="w-full px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === 'auto' ? 'bg-primary/10 text-primary' : ''}"
-      >
-        Auto
-      </button>
-      <div class="border-t border-border/30 my-1"></div>
       {#each editorThemes as theme}
         <button
           onclick={() => selectEditorTheme(theme.key)}
-          class="w-full px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors {currentEditorTheme === theme.key ? 'bg-primary/10 text-primary' : ''}"
+          class="w-full px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors {currentTheme && currentTheme === theme.key ? 'bg-primary/10 text-primary' : ''}"
         >
           {theme.name}
         </button>

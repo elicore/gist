@@ -20,7 +20,8 @@
       "Bash(lsof:*)",
       "Bash(pkill:*)",
       "Bash(grep:*)",
-      "Bash(npm run check:*)"
+      "Bash(npm run check:*)",
+      "Bash(npm run tauri:build:*)"
     ],
     "deny": []
   }

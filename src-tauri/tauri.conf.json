@@ -5,7 +5,7 @@
   "identifier": "com.gistmanager.app",
   "build": {
     "devUrl": "http://localhost:1420",
-    "frontendDist": "../.svelte-kit/output/client"
+    "frontendDist": "../dist"
   },
   "app": {
     "withGlobalTauri": true,

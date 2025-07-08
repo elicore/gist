@@ -296,6 +296,94 @@ export async function initMonaco() {
       }
     });
 
+    // Light Plus Theme (VSCode Default Light)
+    monacoInstance.editor.defineTheme('light-plus', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '008000' },
+        { token: 'keyword', foreground: '0000FF' },
+        { token: 'string', foreground: 'A31515' },
+        { token: 'number', foreground: '098658' },
+        { token: 'type', foreground: '267F99' },
+        { token: 'function', foreground: '795E26' }
+      ],
+      colors: {
+        'editor.background': '#FFFFFF',
+        'editor.foreground': '#000000',
+        'editor.lineHighlightBackground': '#F3F3F3',
+        'editor.selectionBackground': '#ADD6FF',
+        'editorCursor.foreground': '#000000',
+        'editorWhitespace.foreground': '#BFBFBF'
+      }
+    });
+
+    // Quiet Light Theme
+    monacoInstance.editor.defineTheme('quiet-light', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '999988' },
+        { token: 'keyword', foreground: '333333' },
+        { token: 'string', foreground: 'DD1144' },
+        { token: 'number', foreground: '009999' },
+        { token: 'type', foreground: '445588' },
+        { token: 'function', foreground: '990000' }
+      ],
+      colors: {
+        'editor.background': '#F5F5F5',
+        'editor.foreground': '#333333',
+        'editor.lineHighlightBackground': '#EEEEEE',
+        'editor.selectionBackground': '#D5DDF3',
+        'editorCursor.foreground': '#666666',
+        'editorWhitespace.foreground': '#CCCCCC'
+      }
+    });
+
+    // Winter is Coming Light Theme
+    monacoInstance.editor.defineTheme('winter-light', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '7C7C7C' },
+        { token: 'keyword', foreground: '0066CC' },
+        { token: 'string', foreground: '22863A' },
+        { token: 'number', foreground: '005CC5' },
+        { token: 'type', foreground: '6F42C1' },
+        { token: 'function', foreground: '6F42C1' }
+      ],
+      colors: {
+        'editor.background': '#FFFFFF',
+        'editor.foreground': '#24292E',
+        'editor.lineHighlightBackground': '#F6F8FA',
+        'editor.selectionBackground': '#C8E1FF',
+        'editorCursor.foreground': '#044289',
+        'editorWhitespace.foreground': '#D1D5DA'
+      }
+    });
+
+    // Atom One Light Theme
+    monacoInstance.editor.defineTheme('atom-one-light', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: 'A0A1A7' },
+        { token: 'keyword', foreground: 'A626A4' },
+        { token: 'string', foreground: '50A14F' },
+        { token: 'number', foreground: '986801' },
+        { token: 'type', foreground: 'C18401' },
+        { token: 'function', foreground: '4078F2' }
+      ],
+      colors: {
+        'editor.background': '#FAFAFA',
+        'editor.foreground': '#383A42',
+        'editor.lineHighlightBackground': '#F0F0F1',
+        'editor.selectionBackground': '#E5E5E6',
+        'editorCursor.foreground': '#526FFF',
+        'editorWhitespace.foreground': '#D0D0D0'
+      }
+    });
+
     return monacoInstance;
   } catch (error) {
     console.error('Failed to initialize Monaco Editor:', error);

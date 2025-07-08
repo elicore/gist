@@ -2,7 +2,7 @@
   import { Sun, Moon, Monitor, Palette, Key } from 'lucide-svelte';
   import Button from './Button.svelte';
   import Input from './Input.svelte';
-  import { theme, editorTheme, githubToken } from '../stores.js';
+  import { theme, githubToken } from '../stores.js';
   
   const { onClose = () => {} } = $props();
   
@@ -10,17 +10,7 @@
   const themes = ['system', 'light', 'dark'];
   const themeIcons = { system: Monitor, light: Sun, dark: Moon };
   
-  // Editor theme options grouped by type
-  const lightEditorThemes = ['vs', 'hc-light', 'github-light', 'solarized-light'];
-  const darkEditorThemes = ['vs-dark', 'hc-black', 'monokai', 'tomorrow-night-blue', 'solarized-dark'];
-  
-  const getCurrentThemeGroup = () => {
-    const currentDocTheme = document.documentElement.getAttribute('data-theme');
-    return currentDocTheme === 'dark' ? darkEditorThemes : lightEditorThemes;
-  };
-  
   let currentTheme = $state($theme);
-  let currentEditorTheme = $state($editorTheme);
   let currentGithubToken = $state($githubToken);
   
   // Apply theme when component loads and when currentTheme changes
@@ -71,10 +61,6 @@
     console.log('Theme change complete');
   };
   
-  const handleEditorThemeChange = (newTheme) => {
-    currentEditorTheme = newTheme;
-    editorTheme.set(newTheme);
-  };
   
   const handleTokenSave = () => {
     githubToken.set(currentGithubToken);
