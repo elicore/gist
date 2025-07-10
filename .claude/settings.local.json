@@ -21,7 +21,9 @@
       "Bash(pkill:*)",
       "Bash(grep:*)",
       "Bash(npm run check:*)",
-      "Bash(npm run tauri:build:*)"
+      "Bash(npm run tauri:build:*)",
+      "WebFetch(domain:shadcn-svelte.com)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

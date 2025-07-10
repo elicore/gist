@@ -74,25 +74,38 @@
   <title>Gist Manager</title>
 </svelte:head>
 
-<main class="h-screen bg-background text-foreground overflow-hidden">
+<main class="h-screen bg-background text-foreground overflow-hidden relative z-10">
   <!-- Theme Toggle -->
   <div class="fixed top-4 right-4 z-[9999]">
     <button
       onclick={toggleTheme}
-      class="relative w-12 h-6 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400 dark:from-blue-900 dark:to-purple-900 transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+      class="relative inline-flex items-center justify-center rounded-md w-10 h-10 border border-border bg-card text-card-foreground shadow-sm hover:bg-accent hover:text-accent-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
       aria-label="Toggle theme"
     >
-      <!-- Toggle Circle with Icon -->
-      <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-all duration-300 flex items-center justify-center {isDark ? 'translate-x-6' : 'translate-x-0'}">
-        <span class="text-xs">{isDark ? '🌙' : '☀️'}</span>
-      </div>
-
-      <!-- Background Stars (visible in dark mode) -->
-      <div class="absolute inset-0 rounded-full overflow-hidden opacity-0 dark:opacity-100 transition-opacity duration-300">
-        <div class="w-0.5 h-0.5 bg-white rounded-full absolute top-1 right-2"></div>
-        <div class="w-0.5 h-0.5 bg-white rounded-full absolute top-3 right-4"></div>
-        <div class="w-0.5 h-0.5 bg-white rounded-full absolute bottom-1.5 right-2.5"></div>
-      </div>
+      <!-- Sun Icon (visible in dark mode) -->
+      <svg 
+        class="h-5 w-5 rotate-0 scale-100 transition-all duration-300 {isDark ? '-rotate-90 scale-0' : 'rotate-0 scale-100'}" 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor" 
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      
+      <!-- Moon Icon (visible in light mode) -->
+      <svg 
+        class="absolute h-5 w-5 transition-all duration-300 {isDark ? 'rotate-0 scale-100' : 'rotate-90 scale-0'}" 
+        fill="none" 
+        viewBox="0 0 24 24" 
+        stroke="currentColor" 
+        stroke-width="2"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+      
+      <span class="sr-only">Toggle theme</span>
     </button>
   </div>
 

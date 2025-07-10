@@ -662,11 +662,11 @@
 
 <!-- Theme dropdown modal rendered at body level to avoid z-index issues -->
 {#if showThemeMenu}
-  <div class="fixed inset-0 z-[9999]" onclick={() => showThemeMenu = false}>
+  <div class="fixed inset-0 z-[9999]" role="button" tabindex="0" onclick={() => showThemeMenu = false} onkeydown={(e)=>{ if(e.key==='Enter' || e.key===' ') showThemeMenu = false; }}>
     <div 
       class="absolute bg-card border border-border rounded shadow-lg w-32 py-1 max-h-80 overflow-y-auto"
       style="top: {themeButtonPosition?.bottom || 0}px; right: {window.innerWidth - (themeButtonPosition?.right || 0)}px;"
-      onclick={(e) => e.stopPropagation()}
+      role="menu" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}
     >
       {#each editorThemes as theme}
         <button

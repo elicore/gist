@@ -47,5 +47,5 @@
   </div>
 {:else}
   <!-- Fallback for old Lucide icons -->
-  <svelte:component this={iconData} size={size} />
+  <iconData size={size}></iconData>
 {/if}
