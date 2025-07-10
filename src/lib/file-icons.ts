@@ -1,11 +1,24 @@
-// Enhanced file icon system with better visual distinction
-export const getFileIcon = (filename) => {
+import type { FileIconConfig } from './types.js';
+
+/**
+ * Enhanced file icon system with better visual distinction
+ * Returns file icon configuration based on filename extension or special file names
+ */
+export const getFileIcon = (filename: string): FileIconConfig => {
   const ext = filename.split('.').pop()?.toLowerCase();
   const name = filename.toLowerCase();
-  
-  // Return an object with text, colors, and styling info
-  // Updated to use theme-appropriate colors that work well in both light and dark modes
-  const createFileIcon = (text, lightBg, darkBg, lightText = 'white', darkText = 'white') => ({
+
+  /**
+   * Creates a file icon configuration object
+   * Uses theme-appropriate colors that work well in both light and dark modes
+   */
+  const createFileIcon = (
+    text: string,
+    lightBg: string,
+    darkBg: string,
+    lightText: string = 'white',
+    darkText: string = 'white'
+  ): FileIconConfig => ({
     text,
     lightBg,
     darkBg,
@@ -13,9 +26,9 @@ export const getFileIcon = (filename) => {
     darkText,
     isCustom: true
   });
-  
+
   // Special files (check full filename first)
-  const specialFiles = {
+  const specialFiles: Record<string, FileIconConfig> = {
     'package.json': createFileIcon('PKG', '#E53E3E', '#FC8181'),
     'tsconfig.json': createFileIcon('TS', '#2B6CB0', '#63B3ED'),
     'webpack.config.js': createFileIcon('WP', '#2B6CB0', '#63B3ED'),
@@ -36,13 +49,13 @@ export const getFileIcon = (filename) => {
     'makefile': createFileIcon('MK', '#38A169', '#68D391'),
     'requirements.txt': createFileIcon('REQ', '#2B6CB0', '#63B3ED'),
   };
-  
+
   if (specialFiles[name]) {
     return specialFiles[name];
   }
-  
+
   // Extension-based icons
-  const extensionMap = {
+  const extensionMap: Record<string, FileIconConfig> = {
     // JavaScript & TypeScript
     'js': createFileIcon('JS', '#D69E2E', '#F6E05E', '#2D3748', '#2D3748'),
     'jsx': createFileIcon('JSX', '#0987A0', '#4FD1C7'),
@@ -50,7 +63,7 @@ export const getFileIcon = (filename) => {
     'tsx': createFileIcon('TSX', '#2B6CB0', '#63B3ED'),
     'mjs': createFileIcon('MJS', '#D69E2E', '#F6E05E', '#2D3748', '#2D3748'),
     'cjs': createFileIcon('CJS', '#D69E2E', '#F6E05E', '#2D3748', '#2D3748'),
-    
+
     // Web Technologies
     'html': createFileIcon('HTML', '#E53E3E', '#FC8181'),
     'htm': createFileIcon('HTM', '#E53E3E', '#FC8181'),
@@ -60,7 +73,7 @@ export const getFileIcon = (filename) => {
     'less': createFileIcon('LESS', '#2B6CB0', '#63B3ED'),
     'vue': createFileIcon('VUE', '#38A169', '#68D391'),
     'svelte': createFileIcon('SV', '#E53E3E', '#FC8181'),
-    
+
     // Programming Languages
     'py': createFileIcon('PY', '#2B6CB0', '#63B3ED'),
     'rb': createFileIcon('RB', '#E53E3E', '#FC8181'),
@@ -75,7 +88,7 @@ export const getFileIcon = (filename) => {
     'kt': createFileIcon('KT', '#553C9A', '#9F7AEA'),
     'scala': createFileIcon('SC', '#E53E3E', '#FC8181'),
     'r': createFileIcon('R', '#2B6CB0', '#63B3ED'),
-    
+
     // Shell Scripts
     'sh': createFileIcon('SH', '#4EAA25', 'white'),
     'bash': createFileIcon('BASH', '#4EAA25', 'white'),
@@ -84,7 +97,7 @@ export const getFileIcon = (filename) => {
     'ps1': createFileIcon('PS1', '#012456', 'white'),
     'bat': createFileIcon('BAT', '#4D4D4D', 'white'),
     'cmd': createFileIcon('CMD', '#4D4D4D', 'white'),
-    
+
     // Data & Config
     'json': createFileIcon('JSON', '#000000', 'white'),
     'xml': createFileIcon('XML', '#005FAD', 'white'),
@@ -95,7 +108,7 @@ export const getFileIcon = (filename) => {
     'sql': createFileIcon('SQL', '#336791', 'white'),
     'db': createFileIcon('DB', '#336791', 'white'),
     'sqlite': createFileIcon('SQL', '#003B57', 'white'),
-    
+
     // Images
     'png': createFileIcon('PNG', '#FF6B6B', 'white'),
     'jpg': createFileIcon('JPG', '#4ECDC4', 'white'),
@@ -105,7 +118,7 @@ export const getFileIcon = (filename) => {
     'webp': createFileIcon('WEBP', '#6B73FF', 'white'),
     'ico': createFileIcon('ICO', '#96CEB4', 'white'),
     'bmp': createFileIcon('BMP', '#FECA57', '#2D2D2D'),
-    
+
     // Documents
     'md': createFileIcon('MD', '#083FA1', 'white'),
     'mdx': createFileIcon('MDX', '#1B1F23', 'white'),
@@ -115,21 +128,21 @@ export const getFileIcon = (filename) => {
     'pdf': createFileIcon('PDF', '#DC3545', 'white'),
     'doc': createFileIcon('DOC', '#2B579A', 'white'),
     'docx': createFileIcon('DOCX', '#2B579A', 'white'),
-    
+
     // Archive
     'zip': createFileIcon('ZIP', '#FD79A8', 'white'),
     'tar': createFileIcon('TAR', '#636E72', 'white'),
     'gz': createFileIcon('GZ', '#636E72', 'white'),
     'rar': createFileIcon('RAR', '#FD79A8', 'white'),
     '7z': createFileIcon('7Z', '#74B9FF', 'white'),
-    
+
     // Config Files
     'ini': createFileIcon('INI', '#6C757D', 'white'),
     'cfg': createFileIcon('CFG', '#6C757D', 'white'),
     'conf': createFileIcon('CONF', '#6C757D', 'white'),
     'config': createFileIcon('CFG', '#6C757D', 'white'),
     'lock': createFileIcon('LOCK', '#E17055', 'white'),
-    
+
     // Templates
     'hbs': createFileIcon('HBS', '#F0652A', 'white'),
     'handlebars': createFileIcon('HB', '#F0652A', 'white'),
@@ -139,7 +152,7 @@ export const getFileIcon = (filename) => {
     'ejs': createFileIcon('EJS', '#90A93A', 'white'),
     'pug': createFileIcon('PUG', '#A86454', 'white'),
     'jade': createFileIcon('JADE', '#A86454', 'white'),
-    
+
     // Font files
     'ttf': createFileIcon('TTF', '#9C27B0', 'white'),
     'otf': createFileIcon('OTF', '#9C27B0', 'white'),
@@ -147,6 +160,8 @@ export const getFileIcon = (filename) => {
     'woff2': createFileIcon('WOFF2', '#9C27B0', 'white'),
     'eot': createFileIcon('EOT', '#9C27B0', 'white'),
   };
-  
-  return extensionMap[ext] || createFileIcon('FILE', '#718096', '#A0AEC0', 'white', '#2D3748');
+
+  return ext && extensionMap[ext]
+    ? extensionMap[ext]
+    : createFileIcon('FILE', '#718096', '#A0AEC0', 'white', '#2D3748');
 };

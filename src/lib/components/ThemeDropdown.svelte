@@ -2,7 +2,7 @@
     import { Sun, Moon, Monitor, Palette, Key } from "lucide-svelte";
     import Button from "./Button.svelte";
     import Input from "./Input.svelte";
-    import { theme, githubToken } from "../stores.js";
+    import { theme, githubToken } from "../stores.ts";
 
     const { onClose = () => {} } = $props();
 

@@ -1,5 +1,5 @@
 <script>
-  import { cn } from '../utils.js';
+  import { cn } from '../utils.ts';
 
   export let className = '';
 </script>

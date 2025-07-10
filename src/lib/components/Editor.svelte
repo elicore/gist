@@ -1,11 +1,11 @@
 <script>
-  import { selectedGist, selectedFile, githubToken, isLoading, lightEditorTheme, darkEditorTheme } from '../stores.js';
-  import { GitHubGistAPI } from '../github.js';
+  import { selectedGist, selectedFile, githubToken, isLoading, lightEditorTheme, darkEditorTheme } from '../stores.ts';
+  import { GitHubGistAPI } from '../github.ts';
   import FileIcon from './FileIcon.svelte';
   import { Plus, Save, Trash2, Edit3, Code, FileText, Eye, Palette, Globe, Lock, Calendar } from 'lucide-svelte';
   import { marked } from 'marked';
   import loader from '@monaco-editor/loader';
-  import { initMonaco, createEditor, getLanguageFromFilename } from '../monaco.js';
+  import { initMonaco, createEditor, getLanguageFromFilename } from '../monaco.ts';
 
   let editorContainer = $state();
   let monaco = $state();
@@ -21,7 +21,7 @@
   let showThemeMenu = $state(false);
   let themeButtonRef = $state();
   let themeButtonPosition = $state();
-  
+
   // Available editor themes (only include themes that are actually defined in monaco.js)
   const editorThemes = [
     // Light themes
@@ -48,15 +48,15 @@
     { key: 'vs-dark', name: 'VS Dark' },
     { key: 'hc-black', name: 'HC Dark' }
   ];
-  
-  
+
+
   // Check if current file is markdown
   let isMarkdownFile = $derived($selectedFile && $selectedFile.filename.toLowerCase().match(/\.(md|markdown)$/));
-  
+
   // Generate markdown preview
   let markdownPreview = $derived(
-    isMarkdownFile && $selectedFile 
-      ? marked($selectedFile.content || '') 
+    isMarkdownFile && $selectedFile
+      ? marked($selectedFile.content || '')
       : ''
   );
 
@@ -95,14 +95,14 @@
 
   // State to track current theme
   let currentTheme = $state();
-  
+
   // Function to get the current editor theme based on mode
   function getCurrentEditorTheme() {
     if (typeof document === 'undefined') return $lightEditorTheme; // SSR safety
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     return isDark ? $darkEditorTheme : $lightEditorTheme;
   }
-  
+
   // Initialize current theme and update when stores change
   $effect(() => {
     // Small delay to ensure document theme is applied
@@ -136,16 +136,16 @@
           console.error('Failed to apply editor theme:', error);
         }
       });
-      
+
       observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['data-theme']
       });
-      
+
       return () => observer.disconnect();
     }
   });
-  
+
   function toggleThemeMenu() {
     if (!showThemeMenu && themeButtonRef) {
       const rect = themeButtonRef.getBoundingClientRect();
@@ -156,27 +156,27 @@
     }
     showThemeMenu = !showThemeMenu;
   }
-  
+
   function selectEditorTheme(theme) {
     // Save to the appropriate store based on current mode
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    
+
     if (isDark) {
       darkEditorTheme.set(theme);
     } else {
       lightEditorTheme.set(theme);
     }
-    
+
     // Update current theme state
     currentTheme = theme;
-    
+
     // Apply the theme immediately
     try {
       monaco.editor.setTheme(theme);
     } catch (error) {
       console.error('Failed to apply editor theme:', error);
     }
-    
+
     showThemeMenu = false;
   }
 
@@ -190,20 +190,20 @@
   async function initializeMonaco() {
     if (initializingMonaco) return;
     initializingMonaco = true;
-    
+
     try {
       console.log('Starting Monaco initialization...');
-      
+
       // Initialize Monaco instance
       monaco = await loader.init();
-      
+
       // Ensure our custom themes are available
       await initMonaco();
-      
+
       // Use the appropriate theme for the current mode - wait a bit for document theme to be applied
       await new Promise(resolve => setTimeout(resolve, 50));
       const theme = getCurrentEditorTheme();
-      
+
       // Create the editor
       editor = createEditor(editorContainer, {
         value: $selectedFile?.content || '',
@@ -211,16 +211,16 @@
         theme: theme,
         readOnly: !isEditing
       });
-      
+
       // Listen for content changes
       editor.onDidChangeModelContent(() => {
         if (isEditing && $selectedFile) {
           $selectedFile.content = editor.getValue();
         }
       });
-      
+
       monacoReady = true;
-      
+
       // Ensure we apply the correct theme immediately after initialization
       const correctTheme = getCurrentEditorTheme();
       currentTheme = correctTheme;
@@ -229,12 +229,12 @@
       } catch (error) {
         console.error('Failed to apply initial theme:', error);
       }
-      
+
       console.log('Monaco Editor initialized successfully');
-      
+
     } catch (error) {
       console.error('Failed to initialize Monaco Editor:', error);
-      
+
       // Fallback to textarea
       const textarea = document.createElement('textarea');
       textarea.style.width = '100%';
@@ -248,16 +248,16 @@
       textarea.style.backgroundColor = 'transparent';
       textarea.value = $selectedFile?.content || '';
       textarea.readOnly = !isEditing;
-      
+
       textarea.addEventListener('input', (e) => {
         if (isEditing && $selectedFile) {
           $selectedFile.content = e.target.value;
         }
       });
-      
+
       editorContainer.appendChild(textarea);
       monacoReady = true;
-      
+
     } finally {
       initializingMonaco = false;
     }
@@ -272,22 +272,22 @@
     try {
       const content = $selectedFile.content || '';
       const language = getLanguageFromFilename($selectedFile.filename);
-      
-      console.log('Updating editor with:', { 
-        filename: $selectedFile.filename, 
+
+      console.log('Updating editor with:', {
+        filename: $selectedFile.filename,
         contentLength: content.length,
         language
       });
-      
+
       // Update content and language
       editor.setValue(content);
-      
+
       // Set language model
       const model = editor.getModel();
       if (model) {
         monaco.editor.setModelLanguage(model, language);
       }
-      
+
       console.log('Editor content updated successfully');
     } catch (error) {
       console.error('Error updating editor content:', error);
@@ -337,11 +337,11 @@
       };
 
       await api.updateGist($selectedGist.id, updatedGist);
-      
+
       // Update local state
       $selectedGist.files[$selectedFile.filename].content = $selectedFile.content;
       $selectedGist = { ...$selectedGist };
-      
+
       isEditing = false;
     } catch (error) {
       console.error('Error saving file:', error);
@@ -359,12 +359,12 @@
       };
 
       await api.updateGist($selectedGist.id, updatedGist);
-      
+
       // Update local state
       delete $selectedGist.files[$selectedFile.filename];
       $selectedGist = { ...$selectedGist };
       $selectedFile = null;
-      
+
     } catch (error) {
       console.error('Error deleting file:', error);
     }
@@ -389,9 +389,9 @@
 
   function formatDate(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -411,14 +411,14 @@
       };
 
       await api.updateGist($selectedGist.id, updatedGist);
-      
+
       // Update local state
       $selectedGist.files[newFileName] = { content: '', language: null };
       $selectedGist = { ...$selectedGist };
-      
+
       // Select the new file
       selectFile(newFileName);
-      
+
       editingNewFile = false;
       newFileName = '';
     } catch (error) {
@@ -439,7 +439,7 @@
             <h2 class="text-lg font-semibold text-foreground">
               {$selectedGist.description || 'Untitled Gist'}
             </h2>
-            
+
             <!-- Gist Details -->
             <div class="flex items-center gap-4 text-xs text-muted-foreground mt-1">
               <!-- Visibility Status -->
@@ -452,7 +452,7 @@
                   <span>Private</span>
                 {/if}
               </div>
-              
+
               <!-- File Count (only if > 1) -->
               {#if Object.keys($selectedGist.files || {}).length > 1}
                 <div class="flex items-center gap-1.5">
@@ -460,7 +460,7 @@
                   <span>{Object.keys($selectedGist.files || {}).length} files</span>
                 </div>
               {/if}
-              
+
               <!-- Created Date -->
               {#if $selectedGist.created_at}
                 <div class="flex items-center gap-1.5" title="Created: {formatDate($selectedGist.created_at)}">
@@ -468,7 +468,7 @@
                   <span>Created {formatDate($selectedGist.created_at)}</span>
                 </div>
               {/if}
-              
+
               <!-- Updated Date (only if different from created) -->
               {#if $selectedGist.updated_at && $selectedGist.updated_at !== $selectedGist.created_at}
                 <div class="flex items-center gap-1.5" title="Last updated: {formatDate($selectedGist.updated_at)}">
@@ -492,7 +492,7 @@
             <span class="truncate max-w-32">{filename}</span>
           </button>
         {/each}
-        
+
         <!-- New file creation -->
         {#if editingNewFile}
           <div class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-secondary/80 border-2 border-primary/50">
@@ -551,7 +551,7 @@
                 {/if}
               </button>
             {/if}
-            
+
             <!-- Editor Theme Selector -->
             <div class="relative">
               <button
@@ -564,7 +564,7 @@
                 <span class="text-[10px] font-mono">{(currentTheme && editorThemes.find(t => t.key === currentTheme)?.name || 'THEME').toUpperCase()}</span>
               </button>
             </div>
-            
+
             {#if isEditing}
               <button
                 onclick={saveFile}
@@ -607,7 +607,7 @@
             </div>
           </div>
         {/if}
-        
+
         <!-- Always render the editor container, just hide it when showing preview -->
         <div
           bind:this={editorContainer}
@@ -663,7 +663,7 @@
 <!-- Theme dropdown modal rendered at body level to avoid z-index issues -->
 {#if showThemeMenu}
   <div class="fixed inset-0 z-[9999]" role="button" tabindex="0" onclick={() => showThemeMenu = false} onkeydown={(e)=>{ if(e.key==='Enter' || e.key===' ') showThemeMenu = false; }}>
-    <div 
+    <div
       class="absolute bg-card border border-border rounded shadow-lg w-32 py-1 max-h-80 overflow-y-auto"
       style="top: {themeButtonPosition?.bottom || 0}px; right: {window.innerWidth - (themeButtonPosition?.right || 0)}px;"
       role="menu" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}

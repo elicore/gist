@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import { GitHubGistAPI } from '../github.js';
-  import { githubToken, gists, selectedGist, selectedFile, isLoading, error } from '../stores.js';
+  import { GitHubGistAPI } from '../github.ts';
+  import { githubToken, gists, selectedGist, selectedFile, isLoading, error } from '../stores.ts';
   import FileIcon from './FileIcon.svelte';
   import { Star, Eye, GitFork, Calendar, FileText, Search, RefreshCw } from 'lucide-svelte';
   import Card from './Card.svelte';
@@ -13,16 +13,16 @@
   let tokenInput = $state('');
   let lastUpdateTime = $state(null);
 
-  let filteredGists = $derived($gists.filter(gist => 
+  let filteredGists = $derived($gists.filter(gist =>
     gist.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    Object.keys(gist.files).some(filename => 
+    Object.keys(gist.files).some(filename =>
       filename.toLowerCase().includes(searchTerm.toLowerCase())
     )
   ));
 
   async function loadGists() {
     if (!$githubToken) return;
-    
+
     try {
       $isLoading = true;
       $error = null;
@@ -43,15 +43,15 @@
       $isLoading = true;
       $error = null;
       console.log('API instance:', api);
-      
+
       // Fetch the full gist data with file contents
       const fullGist = await api.getGist(gist.id);
       console.log('Loaded full gist:', fullGist);
       console.log('Files in gist:', Object.keys(fullGist.files || {}));
-      
+
       $selectedGist = fullGist;
       console.log('Selected gist store updated:', $selectedGist);
-      
+
       // Auto-select the first file if available
       const filenames = Object.keys(fullGist.files || {});
       if (filenames.length > 0) {
@@ -92,7 +92,7 @@
       loadGists();
     }
   });
-  
+
   // Watch for changes to the github token
   $effect(() => {
     if ($githubToken && api === undefined) {
@@ -184,7 +184,7 @@
             <Card
               className="cursor-pointer transition-all duration-300 ease-out hover:bg-accent/80 hover:shadow-lg hover:shadow-primary/5 transform hover:translate-y-[-2px] active:translate-y-0 active:scale-98 {$selectedGist?.id === gist.id ? 'ring-2 ring-primary/50 bg-primary/5 shadow-md' : 'hover:border-accent-foreground/20'}"
             >
-              <div 
+              <div
                 class="p-4 space-y-3"
                 onclick={() => selectGist(gist)}
                 role="button"
