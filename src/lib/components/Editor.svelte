@@ -150,8 +150,8 @@
     if (!showThemeMenu && themeButtonRef) {
       const rect = themeButtonRef.getBoundingClientRect();
       themeButtonPosition = {
-        bottom: rect.bottom + 4,
-        right: rect.right
+        top: rect.bottom + 4,
+        left: rect.left
       };
     }
     showThemeMenu = !showThemeMenu;
@@ -664,8 +664,8 @@
 {#if showThemeMenu}
   <div class="fixed inset-0 z-[9999]" role="button" tabindex="0" onclick={() => showThemeMenu = false} onkeydown={(e)=>{ if(e.key==='Enter' || e.key===' ') showThemeMenu = false; }}>
     <div
-      class="absolute bg-card border border-border rounded shadow-lg w-32 py-1 max-h-80 overflow-y-auto"
-      style="top: {themeButtonPosition?.bottom || 0}px; right: {window.innerWidth - (themeButtonPosition?.right || 0)}px;"
+      class="absolute bg-card border border-border rounded shadow-lg w-32 py-1 max-h-80 overflow-y-auto z-50"
+      style="top: {themeButtonPosition?.top || 0}px; left: {themeButtonPosition?.left || 0}px;"
       role="menu" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}
     >
       {#each editorThemes as theme}
